@@ -91,8 +91,11 @@ def find_cited_by(body: Tag):
     # url1 = r"https://pubmed.ncbi.nlm.nih.gov/?linkname=pubmed_pubmed_citedin&from_uid=32264957&filter=simsearch2.ffrft"
     # url2 =                                r"/?linkname=pubmed_pubmed_citedin&from_uid=32745377"
 
-    all_cited_url = urljoin(HOMEPAGE, showAll)
-    return all_cited_url
+    resp = send_request(urljoin(HOMEPAGE, showAll))
+    s = BeautifulSoup(resp.text, "lxml")
+    new_body = soup.find('body', recursive=True)
+
+    
 
 
 if __name__ == "__main__":
@@ -105,3 +108,4 @@ if __name__ == "__main__":
 
     cited = find_cited_by(body)
     print(cited)
+    
