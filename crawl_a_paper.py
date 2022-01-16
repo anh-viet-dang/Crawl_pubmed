@@ -1,9 +1,9 @@
 # /home/agent/anaconda3/bin/python3.9
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlencode, parse_qsl
 from crawl_trending import send_request
-from config import HOMEPAGE
+import config
 from colorama import Fore  # , Back, Style
 
 
@@ -70,7 +70,7 @@ def find_reference_article(body: Tag):
         print("search html with wrong keywords")
     else:
         for refTag in refTags:
-
+            
             ...
 
 
@@ -87,15 +87,27 @@ def find_cited_by(body: Tag):
     """
     show_all_cited = body.find('a', {"class": "usa-button show-all-linked-articles",
                                "data-ga-category": "cited_by", "data-ga-action": "show_all"}, recursive=True)
-    showAll = show_all_cited.__getitem__(key= "data-href")
-    # url1 = r"https://pubmed.ncbi.nlm.nih.gov/?linkname=pubmed_pubmed_citedin&from_uid=32264957&filter=simsearch2.ffrft"
-    # url2 =                                r"/?linkname=pubmed_pubmed_citedin&from_uid=32745377"
 
-    resp = send_request(urljoin(HOMEPAGE, showAll))
-    s = BeautifulSoup(resp.text, "lxml")
-    new_body = soup.find('body', recursive=True)
+    queryStr = show_all_cited.__getitem__(key= "data-href")  # get query string dẫn đến full cited page of paper
+    queryStr = queryStr.strip('/').strip('?')   # BUG bỏ 2 ký tự '/' và '?' để hàm urlencode hoạt động ok
 
+    #https://stackoverflow.com/questions/2506379/add-params-to-given-url-in-python
+    queryDict = dict(parse_qsl(queryStr))                   # convert query String sang dict
+    queryDict.update(config.params_cited)                   # thêm key, value cho queryDict
+    queryStr = urlencode(queryDict)                         # convert dict sang query string
+    queryStr = '/?' + queryStr              # BUG thêm 2 ký tự '/' và '?' để hàm urlencode hoạt động ok
+
+
+    full_cited_url = urljoin(config.HOMEPAGE, queryStr)     # join homepage and query string thành url hoàn chỉnh
+    print(Fore.RED + full_cited_url)
+
+    # parse html ở trang full cited
+    resp = send_request(full_cited_url)
+    soup = BeautifulSoup(resp.text, "lxml")
+    cited_body = soup.find('body', recursive=True)
     
+
+    return full_cited_url
 
 
 if __name__ == "__main__":
@@ -107,5 +119,4 @@ if __name__ == "__main__":
     # print(isinstance(body, Tag))  #True
 
     cited = find_cited_by(body)
-    print(cited)
     
