@@ -1,9 +1,10 @@
-#/home/agent/anaconda3/bin/python3.9
-from typing import List
-from lib import send_request
-from bs4.element import Tag
-from colorama import Fore
+# /home/agent/anaconda3/bin/python3.9
+# from colorama import Fore
 import os
+
+from bs4.element import Tag
+
+from lib import send_request
 
 r"""
     Từ response của request có query &format=pubmed
@@ -19,6 +20,7 @@ r"""
     title: classify
     abstract: classify
 """
+
 
 def split_info(info_one_paper: str):
     r"""
@@ -43,7 +45,7 @@ def split_info(info_one_paper: str):
              |__||__|
              (__)(__)
     """
-    
+
     lines = info_one_paper.strip().split('\n')
     list_info = []      # list chứa các trường thông tin
     info = [lines[0]]   # thông tin của 1 trường, ví dụ PMID- 35025605
@@ -58,7 +60,8 @@ def split_info(info_one_paper: str):
 
     return list_info
 
-def get_from_format_pubmed(body:Tag)->list:
+
+def get_from_format_pubmed(body: Tag) -> list:
     """
     Lấy thông tin PMID, title, abstract từ respond có query &format=pubmed
     Tạm thời áp dụng cho 
@@ -76,28 +79,29 @@ def get_from_format_pubmed(body:Tag)->list:
         # Cần check và bổ sung thêm
         if not paper.startswith(r"PMID- "):
             paper = r"PMID- " + paper
-        
+
         list_info = split_info(paper)
 
-        tong:int = 0
+        tong: int = 0
         pmid = ''
         title = ''
         abstract = ''
-        
+
         for info in list_info:
             if info.startswith(r"PMID- ") and pmid == '':
-                pmid = info[6:]#; print(r"PMID- ", pmid)
+                pmid = info[6:]  # ; print(r"PMID- ", pmid)
                 tong += 1
 
-            elif info.startswith(r"TI  - ") and title == '': 
-                title = info[6:]#; print(r"TI  - ", title)
+            elif info.startswith(r"TI  - ") and title == '':
+                title = info[6:]  # ; print(r"TI  - ", title)
                 tong += 1
 
-            elif info.startswith(r"AB  - ") and abstract == '': 
-                abstract = info[6:]#; print(r"AB  - ", abstract)
+            elif info.startswith(r"AB  - ") and abstract == '':
+                abstract = info[6:]  # ; print(r"AB  - ", abstract)
                 tong += 1
-            
-            if tong == 3: break
+
+            if tong == 3:
+                break
             # elif tong > 3:
             #     msg = r"Nhiều hơn 3 trường thông tin, kiểm tra lại các trường tt trong paper"
             #     raise Exception(msg)
