@@ -1,7 +1,10 @@
 #/home/agent/anaconda3/bin/python3.9
+from typing import List
 from lib import send_request
 from bs4.element import Tag
 from colorama import Fore
+import os
+
 r"""
     Từ response của request có query &format=pubmed
     #    r"https://pubmed.ncbi.nlm.nih.gov/trending/?format=pubmed&size=200"
@@ -21,12 +24,12 @@ def split_info(info_one_paper: str):
     r"""
          ____________________________________________________
         |.==================================================,|
-        ||  Chia nhỏ thông tin trên paper thành các dòng    ||
+        ||  Chia nhỏ thông tin trên 1 paper thành các dòng  ||
         ||  if char đầu dòng là khoảng trắng:               ||
         ||      ghép dòng đó vào dòng phía trên nó.         ||
         ||  else:                                           ||
-        ||      Tạo dòng mới                                ||
-        ||  Ghép các trường thông tin lại với nhau          ||
+        ||      Tạo dòng mới.                               ||
+        ||  Ghép các trường thông tin lại với nhau.         ||
         ||  Tìm trường thông tin theo 7 char đầu tiên       ||
         ||     .~~~~.                                       ||
         ||   / ><    \  //                                  ||
@@ -55,7 +58,7 @@ def split_info(info_one_paper: str):
 
     return list_info
 
-def get_from_format_pubmed(body:Tag):
+def get_from_format_pubmed(body:Tag)->list:
     """
     Lấy thông tin PMID, title, abstract từ respond có query &format=pubmed
     Tạm thời áp dụng cho 
@@ -104,10 +107,10 @@ def get_from_format_pubmed(body:Tag):
 
 
 if __name__ == "__main__":
-    url = r"https://pubmed.ncbi.nlm.nih.gov/?linkname=pubmed_pubmed&from_uid=32745377&show_snippets=off&format=pubmed&size=200"
+    url = r"https://pubmed.ncbi.nlm.nih.gov/?show_snippets=off&format=pubmed&size=200&linkname=pubmed_pubmed&from_uid=31962139"
     body = send_request(url)
     papers = get_from_format_pubmed(body)
     for paper in papers:
-        with open('paper/' + paper[0] + ".txt", 'w') as f:
-            for i in paper:
-                f.write(i + '\n')
+        # paper[0] là pmid:str
+        with open(os.path.join('data/paper', paper[0] + ".txt"), 'w') as f:
+            f.write('\n'.join(paper))

@@ -2,8 +2,8 @@
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 from urllib.parse import urljoin, urlencode, parse_qsl
-from crawl_trending import send_request
-import config
+from lib import send_request
+import lib.config as config
 from colorama import Fore  # , Back, Style
 
 
