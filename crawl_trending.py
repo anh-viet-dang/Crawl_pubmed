@@ -1,6 +1,5 @@
 #/home/agent/anaconda3/bin/python3.9
-import requests
-from bs4 import BeautifulSoup
+from lib import send_request
 from bs4.element import Tag
 from colorama import Fore
 r"""
@@ -17,39 +16,6 @@ r"""
     title: classify
     abstract: classify
 """
-
-desktop_agents = [
-    'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0.1 Safari/602.2.14',
-    'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.98 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.98 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0'
-]
-
-from random import choice
-def random_headers(User_Agent:list= desktop_agents):
-    return {'User-Agent': choice(User_Agent),
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'}
-
-
-def send_request(url: str):
-    return requests.get(url=url, headers=random_headers())
-
-
-url = r"https://pubmed.ncbi.nlm.nih.gov/?linkname=pubmed_pubmed&from_uid=32745377&show_snippets=off&format=pubmed&size=200"
-req = requests.get(url=url, headers=random_headers())
-
-soup = BeautifulSoup(req.text, "lxml")
-body = soup.find('body')
-# text = body.get_text().strip()
-
-# papers = text.split('\nPMID- ')
-
 
 def split_info(info_one_paper: str):
     r"""
@@ -138,6 +104,8 @@ def get_from_format_pubmed(body:Tag):
 
 
 if __name__ == "__main__":
+    url = r"https://pubmed.ncbi.nlm.nih.gov/?linkname=pubmed_pubmed&from_uid=32745377&show_snippets=off&format=pubmed&size=200"
+    body = send_request(url)
     papers = get_from_format_pubmed(body)
     for paper in papers:
         with open('paper/' + paper[0] + ".txt", 'w') as f:
