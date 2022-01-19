@@ -1,11 +1,11 @@
 # /home/agent/anaconda3/bin/python3.9
-from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+
 from bs4.element import Tag
-from urllib.parse import urljoin, urlencode, parse_qsl
-from lib import send_request
-import lib.config as config
 from colorama import Fore  # , Back, Style
 
+from lib import add_query, send_request
+from lib.config import HOMEPAGE
 
 
 def find_title(body: Tag) -> str:
@@ -53,29 +53,64 @@ def find_abstract(body: Tag) -> str:
     return abstract
 
 
-def find_similar_article(body: Tag):
+def find_reference_body(body: Tag)->Tag:
+    r"""
+        >>> input body html của HOMEPAGE/pmid
+        >>> return body của page chứa full references paper
+
+        format tag html cần tìm
+                  <button
+                aria-controls="top-references-list-1"
+                class="show-all"
+                data-ga-action="show_more"
+                data-ga-category="reference"
+                data-next-page-url="/32264957/references/"
+                ref="linksrc=show_all_references_link"
+              >
+                Show all 19 references
+              </button>
+    """
+
+    show_all_ref = body.find('button', {"aria-controls": "top-references-list-1",
+                                        "class": "show-all", "data-ga-action": "show_more",
+                                        "data-ga-category": "reference"}, recursive=True)
+
+    nextPageUrl = show_all_ref.__getitem__(key="data-next-page-url")    # "/32264957/references/"
+
+    # ref paper ko theo format nên ko dùng func add_query
+    full_ref_url = urljoin(HOMEPAGE, nextPageUrl)
+    ref_body = send_request(full_ref_url)
+
+
+    # <ol class="references-list" id="full-references-list-1">
+    ol = ref_body.find('ol', {"class":"references-list"}, recursive= True)
+
+    return ol
+
+
+def find_similar_body(body: Tag)->Tag:
     """
         5 url to 5 similar articals and 1 to search 1901 similar articals
     """
-    similarTag = body.find_all(
-        'a', {"class": "reference-link", "data-ga-category": "reference"}, recursive=True)
+    see_allSimilarTag = body.find('a', {"class": "usa-button show-all-linked-articles", 
+                                             "data-ga-action": "show_all", 
+                                             "data-ga-category": "similar_article"}, recursive=True)
 
-    ...
+    queryStr = see_allSimilarTag.__getitem__(key="data-href")   #"/?linkname=pubmed_pubmed&amp;from_uid=32264957"
+    full_Similar_url = add_query(queryStr)
+    body = send_request(full_Similar_url)
 
-
-def find_reference_article(body: Tag):
-    refTags = body.find_all(
-        name='a', attrs={"data-ga-category": "reference"}, recursive=True)
-    if refTags is None:
-        print("search html with wrong keywords")
-    else:
-        for refTag in refTags:
-            
-            ...
+    return body
 
 
-def find_cited_by(body: Tag):
+def find_cited_body(body: Tag)->Tag:
     r"""
+    input: body của paper
+    return : body của pape, gồm full cited
+            body này đã có info pmid, title, abstract của nhiều paper
+            đưa tiếp qua crawl_trending.split_info để lấy thông tin của từng paper
+
+    format của tag html:
             <a
               class="usa-button show-all-linked-articles"
               data-href="/?linkname=pubmed_pubmed_citedin&amp;from_uid=32264957"
@@ -88,35 +123,19 @@ def find_cited_by(body: Tag):
     show_all_cited = body.find('a', {"class": "usa-button show-all-linked-articles",
                                "data-ga-category": "cited_by", "data-ga-action": "show_all"}, recursive=True)
 
-    queryStr = show_all_cited.__getitem__(key= "data-href")  # get query string dẫn đến full cited page of paper
-    queryStr = queryStr.strip('/').strip('?')   # BUG bỏ 2 ký tự '/' và '?' để hàm urlencode hoạt động ok
+    # get query string dẫn đến full cited page of paper
+    queryStr = show_all_cited.__getitem__(key="data-href")
+    full_cited_url = add_query(queryStr)
+    cited_body = send_request(full_cited_url)
 
-    #https://stackoverflow.com/questions/2506379/add-params-to-given-url-in-python
-    queryDict = dict(parse_qsl(queryStr))                   # convert query String sang dict
-    queryDict.update(config.params_cited)                   # thêm key, value cho queryDict
-    queryStr = urlencode(queryDict)                         # convert dict sang query string
-    queryStr = '/?' + queryStr              # BUG thêm 2 ký tự '/' và '?' để hàm urlencode hoạt động ok
-
-
-    full_cited_url = urljoin(config.HOMEPAGE, queryStr)     # join homepage and query string thành url hoàn chỉnh
-    print(Fore.RED + full_cited_url)
-
-    # parse html ở trang full cited
-    resp = send_request(full_cited_url)
-    soup = BeautifulSoup(resp.text, "lxml")
-    cited_body = soup.find('body', recursive=True)
-    
-
-    return full_cited_url
+    return cited_body
 
 
 if __name__ == "__main__":
-    url = r'https://pubmed.ncbi.nlm.nih.gov/32745377/'
-    resp = send_request(url=url)
-    soup = BeautifulSoup(resp.text, "lxml")
-    # loại bỏ đi các phần header, ... ko liên qua của web
-    body = soup.find('body', recursive=True)
-    # print(isinstance(body, Tag))  #True
+    url = r'https://pubmed.ncbi.nlm.nih.gov/32264957/'
+    body = send_request(url=url)
 
-    cited = find_cited_by(body)
-    
+    ref_body = find_reference_body(body)
+    with open("ref.html", 'w') as f:
+        f.write(str(ref_body))
+

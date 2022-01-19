@@ -1,6 +1,6 @@
 HOMEPAGE = r"https://pubmed.ncbi.nlm.nih.gov/"
 
-params_cited = {
+params_query = {
 'show_snippets':'off',
 'format':'pubmed',
 'size': '200'

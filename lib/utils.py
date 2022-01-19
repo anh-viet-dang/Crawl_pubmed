@@ -1,8 +1,11 @@
 from random import choice
-import requests
+from urllib.parse import parse_qsl, urlencode, urljoin
 
+import requests
 from bs4 import BeautifulSoup
 from bs4.element import Tag
+
+from .config import HOMEPAGE, params_query
 
 
 def send_request(url: str) -> Tag:
@@ -48,5 +51,41 @@ def send_request(url: str) -> Tag:
     return body
 
 
+def add_query(queryStr:str)->str:
+    """
+    >>> string query lấy được từ tag html
+    >>> return full url để send_request
+    """
+
+    # BUG bỏ 2 ký tự '/' và '?' để hàm urlencode hoạt động ok
+    queryStr = queryStr.strip('/').strip('?')
+
+    # https://stackoverflow.com/questions/2506379/add-params-to-given-url-in-python
+    # convert query String sang dict
+    queryDict = dict(parse_qsl(queryStr))
+    # thêm key, value cho queryDict
+    queryDict.update(params_query)
+    # convert dict sang query string
+    queryStr = urlencode(queryDict)
+    # BUG thêm 2 ký tự '/' và '?' để hàm urlencode hoạt động ok
+    queryStr = '/?' + queryStr
+    # BUG ký tự '/' vô hiệu hóa toàn bộ ký tự đặc biệt trong string
+    # FIXME s = r''.format(str)
+
+    # join homepage and query string thành url hoàn chỉnh
+    full_url = urljoin(HOMEPAGE, queryStr)
+
+    return full_url
+
+
+def pmid2Url(pmid:str)->str:
+    url = r'{}'.format(urljoin(HOMEPAGE, pmid))
+    if url.endswith(r'/'):
+        return url
+    return url + '/'
+
+
 if __name__ == "__main__":
-    ...
+    pmid = '29625052'
+    url = pmid2Url(pmid)
+    print(url)
