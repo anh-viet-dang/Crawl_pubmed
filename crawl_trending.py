@@ -69,7 +69,7 @@ def get_from_format_pubmed(body: Tag) -> list:
     ví dụ: https://pubmed.ncbi.nlm.nih.gov/?linkname=pubmed_pubmed_citedin&from_uid=32745377&show_snippets=off&format=pubmed&size=200
     trending, reference, cited by
     """
-    text = body.get_text().strip()
+    text = body.get_text(strip= True).strip()
     papers = text.split('\nPMID- ')
 
     list_info_paper = []

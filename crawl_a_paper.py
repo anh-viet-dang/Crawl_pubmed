@@ -4,9 +4,9 @@ from urllib.parse import urljoin
 from bs4.element import Tag
 from colorama import Fore  # , Back, Style
 
-from lib import add_query, send_request
+from lib import add_query, send_request, pmid2Url
 from lib.config import HOMEPAGE
-
+from colorama import Fore
 
 def find_title(body: Tag) -> str:
     # get title of paper
@@ -19,6 +19,7 @@ def find_abstract(body: Tag) -> str:
     absTag = body.find(name='div', attrs={"class": "abstract"}, recursive=True)
     if absTag is None:
         # tìm sai keywork trong tag html
+        # nên ko tìm đc Tag chứa abstract
         raise Exception("check tag html và key:value trong tìm kiếm")
     else:
         _abstract = absTag.find('p')
@@ -83,9 +84,9 @@ def find_reference_body(body: Tag)->Tag:
 
 
     # <ol class="references-list" id="full-references-list-1">
-    ol = ref_body.find('ol', {"class":"references-list"}, recursive= True)
+    # ol = ref_body.find('ol', {"class":"references-list"}, recursive= True)
 
-    return ol
+    return ref_body
 
 
 def find_similar_body(body: Tag)->Tag:
@@ -136,6 +137,70 @@ if __name__ == "__main__":
     body = send_request(url=url)
 
     ref_body = find_reference_body(body)
-    with open("ref.html", 'w') as f:
-        f.write(str(ref_body))
+    _ol = ref_body.find('ol', {"class":"references-list"}, recursive= True)
 
+    # <li class="skip-numbering" value="1">
+    list_li = _ol.find_all('li', {"class":"skip-numbering", "value":"1"}, recursive= True)
+
+    li = list_li[1]
+
+    r"""
+          <li class="skip-numbering" value="1">
+        Wu F, Zhao S, Yu B, Chen YM, Wang W, Song ZG, et al. A new coronavirus
+        associated with human respiratory disease in China. Nature.
+        2020;579:265–269. doi: 10.1038/s41586-020-2008-3. -
+        <a
+          class="reference-link"
+          data-ga-action="10.1038/s41586-020-2008-3"
+          data-ga-category="reference"
+          href="https://doi.org/10.1038/s41586-020-2008-3"
+          ref="linksrc=references_link&amp;ordinalpos=1"
+        >
+          DOI
+        </a>
+
+        -
+        <a
+          class="reference-link"
+          data-ga-action="PMC7094943"
+          data-ga-category="reference"
+          href="http://www.ncbi.nlm.nih.gov/pmc/articles/pmc7094943/"
+          ref="linksrc=references_link&amp;ordinalpos=2"
+        >
+          PMC
+        </a>
+
+        -
+        <a
+          class="reference-link"
+          data-ga-action="32015508"
+          data-ga-category="reference"
+          href="/32015508/"
+          ref="linksrc=references_link&amp;ordinalpos=3"
+        >
+          PubMed
+        </a>
+      </li>
+    """
+    # XXX DOI
+    doi_Tag = li.find('a', {"ref":"linksrc=references_link&amp;ordinalpos=1"}, recursive= True)
+    doi_text = doi_Tag.get_text(strip=True).strip() # DOI
+    doi_url = doi_Tag.__getitem__(key="href")   # https://doi.org/10.1038/s41586-020-2008-3
+
+    # XXX PMC
+    pmc_Tag = li.find('a', {"ref":"linksrc=references_link&amp;ordinalpos=2"}, recursive= True)
+    pmc_text = pmc_Tag.get_text(strip=True).strip()
+    pmc_url = pmc_Tag.__getitem__(key="href")   # http://www.ncbi.nlm.nih.gov/pmc/articles/pmc7110798/
+
+    # XXX PubMed
+    pubmed_Tag = li.find('a', {"ref":"linksrc=references_link&amp;ordinalpos=3"}, recursive= True)
+    pubmed_text = pubmed_Tag.get_text(strip=True).strip()
+    pubmed_url = pubmed_Tag.__getitem__(key="href")
+    pubmed_url = pmid2Url(pubmed_url)
+
+    allString = [s for s in li._all_strings(strip=True, types=li.default)]  #self.get_text()
+    
+
+
+
+    print(Fore.RED + li.get_text(separator="", strip=True))
