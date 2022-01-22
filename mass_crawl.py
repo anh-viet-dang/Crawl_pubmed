@@ -1,10 +1,10 @@
-from crawl_a_paper import (find_abstract, find_cited_body,
-                           find_reference_body, find_similar_body,
-                           find_title)
-
-from lib import pmid2Url, send_request
 from bs4.element import Tag
 from colorama import Fore
+
+from crawl_a_paper import (find_abstract, find_cited_body, find_reference_body,
+                           find_similar_body, find_title)
+from lib import pmid2Url, send_request
+
 """
 Từ pmid đã có, thực hiện tìm pmid similar, cited, reference
 if tìm xem trong list pmid gene/not gene đã có chưa, nếu có:
@@ -40,10 +40,19 @@ def find_info_paper(body:Tag)->tuple:
 
 
 if __name__ == "__main__":
-    path = "/home/agent/Documents/AVADA/Crawl_pubmed/data/Pmid_title_abstract.txt"
-    f = open(path, 'w')
-    list_pmids = get_list_pmid()
-    for pmid in list_pmids:
+    path = "data/Pmid_title_abstract.txt"
+    with open(path, 'r') as f:
+        _pmids = f.read().strip().split('\n')
+    pmided = [pid for i, pid in enumerate(_pmids) if i%4 == 0]  #list pmid đã crawl
+
+    list_pmids = get_list_pmid()    
+    pmid_continue = []  # list pmid chưa crawl
+    for pid in list_pmids:
+        if pid not in pmided:
+            pmid_continue.append(pid)
+
+    f = open(path, 'a')
+    for pmid in pmid_continue:
         url_pmid = pmid2Url(pmid)       # get full url
         body_paper = send_request(url_pmid)     # requests
         title, abstract = find_info_paper(body_paper)   # get info

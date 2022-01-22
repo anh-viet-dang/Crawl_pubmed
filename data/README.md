@@ -12,8 +12,9 @@ crawl random từ pubmed
 - line 2 : title
 - line 3 : abstract
 - line 3 có thể ko có nội dung , do 1 số lượng paper ko có abstract
-
+- line 4: '\n' để ngăn cách giữa 2 paper với nhau
 
 ### Các nguồn để crawl paper
 - HGMD -> pmid -> pubmed
 - pubmed -> pmid
+- PMC -> title -> search in pubmed

@@ -4,14 +4,15 @@ from urllib.parse import urljoin
 from bs4.element import Tag
 from colorama import Fore  # , Back, Style
 
-from lib import add_query, send_request, pmid2Url
+from lib import add_query, pmid2Url, send_request
 from lib.config import HOMEPAGE
-from colorama import Fore
+
 
 def find_title(body: Tag) -> str:
     # get title of paper
     title = body.find(name='h1', attrs={"class": "heading-title"})
-    return title.get_text().strip()
+    title =  title.get_text(strip= True).strip()
+    return ' '.join(title.split())
 
 
 def find_abstract(body: Tag) -> str:
@@ -50,7 +51,7 @@ def find_abstract(body: Tag) -> str:
             """
             # trường hợp paper có abstract
             abstract = _abstract.get_text().strip()
-
+            abstract = ' '.join(abstract.split()) # loại bỏ các dấu xuống dòng, nhiều space về 1 space
     return abstract
 
 
