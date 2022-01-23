@@ -37,9 +37,14 @@ def find_info_paper(body:Tag)->tuple:
     abstract = find_abstract(body)
     return title, abstract
 
+def get_info_from_pmid():
 
+    r"""
+    thu thập thông tin về title, abstract từ các pmid đã biết từ trước
+    danh sách pmid lấy từ data/pmid_gene.txt
+    kết quả đc lưu ở data/Pmid_title_abstract.txt
+    """
 
-if __name__ == "__main__":
     path = "data/Pmid_title_abstract.txt"
     with open(path, 'r') as f:
         _pmids = f.read().strip().split('\n')
@@ -64,3 +69,7 @@ if __name__ == "__main__":
         f.write(pmid + '\n' + title + '\n' + abstract + '\n')
         f.write('\n')
     f.close()
+
+
+if __name__ == "__main__":
+    ...

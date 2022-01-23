@@ -115,32 +115,53 @@ if __name__ == "__main__":
     from lib.read_pmid import read_pmid
     from lib.utils import pmid2Url
     from crawl_a_paper import find_similar_body
-    path_pmid = r"data/pmid_gene.txt"
-    list_pmid = read_pmid(path_pmid)
+    
+    def get_pmid_F1similar() -> list:
+        """
+        đọc thông tin trong file data/similar1.txt
+        lấy ra danh sách pmid đã tìm thấy
+        trong lúc crawls nếu gặp lại pmid này thì bỏ qua
+        """
+        path_list_pmid_similar = "data/similar1.txt"
+        with open(path_list_pmid_similar, 'r') as f:
+            lines = f.read().strip().split('\n')
 
-    list_new_pmid = []
+        list_F1_pmid_similar = [l for i, l in enumerate(lines) if i % 4 == 0]
+        return list_F1_pmid_similar
+
+
+
+
+    path_pmid = r"data/pmid_gene.txt"
+    list_pmid = read_pmid(path_pmid)        # list pmid đã được xác định là liên quan đến bệnh di truyền
+
+    list_F1_pmid_similar = get_pmid_F1similar()     # list pmid mới tìm được
+
     for pmid in list_pmid:
         print(pmid)
+
+        # lưu lại pmid đã tìm similar
+        with open("pmids_da_tim_similar_artical.txt", 'a') as f:
+            f.write(pmid + '\n')
+
         full_url = pmid2Url(pmid)
         body = send_request(full_url)
 
         similar = find_similar_body(body)
-        if similar is not None:
+        if similar is not None:     
             list_paper = get_from_format_pubmed(similar)
 
             all_papers_info = ''
             for paper in list_paper:
 
                 # chỉ lấy thông tin về các pmid mới tìm đc, check trùng xem đã tồn tại ở f0 và f1
-                if paper[0] not in list_pmid and paper[0] not in list_new_pmid:
+                if paper[0] not in list_pmid and paper[0] not in list_F1_pmid_similar:
                     all_papers_info += '\n'.join(paper) + '\n\n'
-                    list_new_pmid.append(paper[0])
+                    list_F1_pmid_similar.append(paper[0])
 
-            with open('data/similar1.txt', 'a') as f:
+            # viết thông tin tìm đc ra file pmid, title, abstract
+            with open('data/similarF1.txt', 'a') as f:
                 f.write(all_papers_info)
 
-    # save pmid similar mới tìm được
-    with open('data/F1_pmid_similar.txt', 'a') as f:
-        f.write('\n'.join(list_new_pmid))
 
 
