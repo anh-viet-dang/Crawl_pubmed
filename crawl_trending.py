@@ -1,7 +1,5 @@
 # /home/agent/anaconda3/bin/python3.9
-# from colorama import Fore
-import os
-
+from colorama import Fore
 from bs4.element import Tag
 
 from lib import send_request
@@ -89,15 +87,15 @@ def get_from_format_pubmed(body: Tag) -> list:
 
         for info in list_info:
             if info.startswith(r"PMID- ") and pmid == '':
-                pmid = info[6:]  # ; print(r"PMID- ", pmid)
+                pmid = info[6:].strip()  # ; print(r"PMID- ", pmid)
                 tong += 1
 
             elif info.startswith(r"TI  - ") and title == '':
-                title = info[6:]  # ; print(r"TI  - ", title)
+                title = info[6:].strip()  # ; print(r"TI  - ", title)
                 tong += 1
 
             elif info.startswith(r"AB  - ") and abstract == '':
-                abstract = info[6:]  # ; print(r"AB  - ", abstract)
+                abstract = info[6:].strip()  # ; print(r"AB  - ", abstract)
                 tong += 1
 
             if tong == 3:
@@ -115,7 +113,7 @@ if __name__ == "__main__":
     from crawl_a_paper import find_similar_body
     from lib.read_pmid import read_pmid
     from lib.utils import pmid2Url
-    
+
     def get_pmid_F1similar() -> list:
         """
         đọc thông tin trong file data/similar1.txt
@@ -126,8 +124,7 @@ if __name__ == "__main__":
         with open(path_list_pmid_similar, 'r') as f:
             lines = f.read().strip().split('\n')
 
-        list_F1_pmid_similar = [l for i, l in enumerate(lines) if i % 4 == 0]
-        return list_F1_pmid_similar
+        return [l.strip() for i, l in enumerate(lines) if i % 4 == 0]
 
 
 
@@ -138,22 +135,21 @@ if __name__ == "__main__":
     list_F1_pmid_similar = get_pmid_F1similar()     # list pmid mới tìm được
 
     for pmid in list_pmid:
-        print(pmid)
+        print("PMID is searching similar    ", pmid)
 
         # lưu lại pmid đã tìm similar
-        with open("pmids_da_tim_similar_artical.txt", 'a') as f:
+        with open("data/pmids_da_tim_similar_artical.txt", 'a') as f:
             f.write(pmid + '\n')
 
         full_url = pmid2Url(pmid)
         body = send_request(full_url)
-
         similar = find_similar_body(body)
+
         if similar is not None:     
             list_paper = get_from_format_pubmed(similar)
 
             all_papers_info = ''
             for paper in list_paper:
-
                 # chỉ lấy thông tin về các pmid mới tìm đc, check trùng xem đã tồn tại ở f0 và f1
                 if paper[0] not in list_pmid and paper[0] not in list_F1_pmid_similar:
                     all_papers_info += '\n'.join(paper) + '\n\n'
@@ -162,6 +158,5 @@ if __name__ == "__main__":
             # viết thông tin tìm đc ra file pmid, title, abstract
             with open('data/similarF1.txt', 'a') as f1:
                 f1.write(all_papers_info)
-
-
-
+        
+        break
