@@ -1,8 +1,9 @@
+folder = "/home/agent/Documents/AVADA/Pubmed-Batch-Download/fetched_pdfs"
 
-s = """Aim:
-        
-      
-      To identify prognostic factors and to correlate APC mutations with clinical features, including extracolic manifestations."""
+import os
+from glob import glob
 
-a = ' '.join(s.split())
-print(a)
+x = glob(folder + '/*.pdf')
+print(len(x))
+y = glob(folder + '/*.html')
+print(len(y))

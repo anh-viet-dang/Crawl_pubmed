@@ -22,7 +22,7 @@ r"""
 """
 
 
-def split_info(info_one_paper: str)->list:
+def split_info(info_one_paper: str) -> list:
     r"""
          ____________________________________________________
         |.==================================================,|
@@ -68,13 +68,13 @@ def get_from_format_pubmed(body: Tag) -> list:
 
     ví dụ: https://pubmed.ncbi.nlm.nih.gov/?linkname=pubmed_pubmed_citedin&from_uid=32745377&show_snippets=off&format=pubmed&size=200
     trending, reference, cited by
+    return list gồm các paper, mỗi paper 
     """
-    text = body.get_text(strip= True).strip()
+    text = body.get_text(strip=True).strip()
     papers = text.split('\nPMID- ')
 
     list_info_paper = []
     for paper in papers:
-
         # Do split('\nPMID- ') nên từ paper thứ 2 trở đi bị mất string "\nPMID- "
         # Cần check và bổ sung thêm
         if not paper.startswith(r"PMID- "):
@@ -110,11 +110,37 @@ def get_from_format_pubmed(body: Tag) -> list:
     return list_info_paper
 
 
+
 if __name__ == "__main__":
-    url = r"https://pubmed.ncbi.nlm.nih.gov/?show_snippets=off&format=pubmed&size=200&linkname=pubmed_pubmed&from_uid=31962139"
-    body = send_request(url)
-    papers = get_from_format_pubmed(body)
-    for paper in papers:
-        # paper[0] là pmid:str
-        with open(os.path.join('data/paper', paper[0] + ".txt"), 'w') as f:
-            f.write('\n'.join(paper))
+    from lib.read_pmid import read_pmid
+    from lib.utils import pmid2Url
+    from crawl_a_paper import find_similar_body
+    path_pmid = r"data/pmid_gene.txt"
+    list_pmid = read_pmid(path_pmid)
+
+    list_new_pmid = []
+    for pmid in list_pmid:
+        print(pmid)
+        full_url = pmid2Url(pmid)
+        body = send_request(full_url)
+
+        similar = find_similar_body(body)
+        if similar is not None:
+            list_paper = get_from_format_pubmed(similar)
+
+            all_papers_info = ''
+            for paper in list_paper:
+
+                # chỉ lấy thông tin về các pmid mới tìm đc, check trùng xem đã tồn tại ở f0 và f1
+                if paper[0] not in list_pmid and paper[0] not in list_new_pmid:
+                    all_papers_info += '\n'.join(paper) + '\n\n'
+                    list_new_pmid.append(paper[0])
+
+            with open('data/similar1.txt', 'a') as f:
+                f.write(all_papers_info)
+
+    # save pmid similar mới tìm được
+    with open('data/F1_pmid_similar.txt', 'a') as f:
+        f.write('\n'.join(list_new_pmid))
+
+

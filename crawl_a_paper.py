@@ -55,7 +55,7 @@ def find_abstract(body: Tag) -> str:
     return abstract
 
 
-def find_reference_body(body: Tag)->Tag:
+def find_reference_body(body: Tag) -> Tag:
     r"""
         >>> input body html của HOMEPAGE/pmid
         >>> return body của page chứa full references paper
@@ -77,9 +77,12 @@ def find_reference_body(body: Tag)->Tag:
                                         "class": "show-all", "data-ga-action": "show_more",
                                         "data-ga-category": "reference"}, recursive=True)
 
+    if show_all_ref is None:
+        return None  # nếu ko tìm thấy tag, return None
+    
     nextPageUrl = show_all_ref.__getitem__(key="data-next-page-url")    # "/32264957/references/"
 
-    # ref paper ko theo format nên ko dùng func add_query
+    # ref paper KO theo format nên ko dùng func add_query
     full_ref_url = urljoin(HOMEPAGE, nextPageUrl)
     ref_body = send_request(full_ref_url)
 
@@ -97,7 +100,8 @@ def find_similar_body(body: Tag)->Tag:
     see_allSimilarTag = body.find('a', {"class": "usa-button show-all-linked-articles", 
                                              "data-ga-action": "show_all", 
                                              "data-ga-category": "similar_article"}, recursive=True)
-
+    if see_allSimilarTag is None:
+        return None
     queryStr = see_allSimilarTag.__getitem__(key="data-href")   #"/?linkname=pubmed_pubmed&amp;from_uid=32264957"
     full_Similar_url = add_query(queryStr)
     body = send_request(full_Similar_url)
@@ -143,7 +147,7 @@ if __name__ == "__main__":
     # <li class="skip-numbering" value="1">
     list_li = _ol.find_all('li', {"class":"skip-numbering", "value":"1"}, recursive= True)
 
-    li = list_li[1]
+    li = list_li[1]   # test thử với 1 phẩn tử
 
     r"""
           <li class="skip-numbering" value="1">
