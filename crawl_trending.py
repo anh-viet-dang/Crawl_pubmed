@@ -112,9 +112,9 @@ def get_from_format_pubmed(body: Tag) -> list:
 
 
 if __name__ == "__main__":
+    from crawl_a_paper import find_similar_body
     from lib.read_pmid import read_pmid
     from lib.utils import pmid2Url
-    from crawl_a_paper import find_similar_body
     
     def get_pmid_F1similar() -> list:
         """
@@ -122,7 +122,7 @@ if __name__ == "__main__":
         lấy ra danh sách pmid đã tìm thấy
         trong lúc crawls nếu gặp lại pmid này thì bỏ qua
         """
-        path_list_pmid_similar = "data/similar1.txt"
+        path_list_pmid_similar = "data/similarF1.txt"
         with open(path_list_pmid_similar, 'r') as f:
             lines = f.read().strip().split('\n')
 
@@ -160,8 +160,8 @@ if __name__ == "__main__":
                     list_F1_pmid_similar.append(paper[0])
 
             # viết thông tin tìm đc ra file pmid, title, abstract
-            with open('data/similarF1.txt', 'a') as f:
-                f.write(all_papers_info)
+            with open('data/similarF1.txt', 'a') as f1:
+                f1.write(all_papers_info)
 
 
 

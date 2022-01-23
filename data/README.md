@@ -23,4 +23,5 @@ crawl random từ pubmed
 
 Pmid_title_abstract.txt là thông tin về các pmid lấy được từ HGMD
 similar1.txt            là thông tin pmid lấy được từ các pmid là similar với các pmid trong Pmid_title_abstract
+similarF1.txt           crawl lần 2
 pmid_not_gene.txt là các pmid của các paper ko liên quan đến bệnh di truyền
