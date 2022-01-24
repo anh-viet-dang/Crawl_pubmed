@@ -1,6 +1,6 @@
 # /home/agent/anaconda3/bin/python3.9
-from colorama import Fore
 from bs4.element import Tag
+from colorama import Fore
 
 from lib import send_request
 
@@ -108,37 +108,38 @@ def get_from_format_pubmed(body: Tag) -> list:
     return list_info_paper
 
 
+def get_pmid_F1similar() -> list:
+    """
+    đọc thông tin trong file data/similar1.txt
+    lấy ra danh sách pmid đã tìm thấy
+    trong lúc crawls nếu gặp lại pmid này thì bỏ qua
+    """
+    path_list_pmid_similar = "data/similarF1.txt"
+    with open(path_list_pmid_similar, 'r') as f:
+        lines = f.read().strip().split('\n')
+
+    return [l.strip() for i, l in enumerate(lines) if i % 4 == 0]
+
 
 if __name__ == "__main__":
     from crawl_a_paper import find_similar_body
     from lib.read_pmid import read_pmid
     from lib.utils import pmid2Url
 
-    def get_pmid_F1similar() -> list:
-        """
-        đọc thông tin trong file data/similar1.txt
-        lấy ra danh sách pmid đã tìm thấy
-        trong lúc crawls nếu gặp lại pmid này thì bỏ qua
-        """
-        path_list_pmid_similar = "data/similarF1.txt"
-        with open(path_list_pmid_similar, 'r') as f:
-            lines = f.read().strip().split('\n')
-
-        return [l.strip() for i, l in enumerate(lines) if i % 4 == 0]
-
-
-
-
+    path_pmided = "data/pmids_da_tim_similar_artical.txt"
     path_pmid = r"data/pmid_gene.txt"
     list_pmid = read_pmid(path_pmid)        # list pmid đã được xác định là liên quan đến bệnh di truyền
+    list_pmided = read_pmid(path_pmided)    # list pmid đã crawls
+
 
     list_F1_pmid_similar = get_pmid_F1similar()     # list pmid mới tìm được
 
     for pmid in list_pmid:
-        print("PMID is searching similar    ", pmid)
+        if pmid in list_pmided: continue
+        print("PMID is searching similar    ", pmid)    #BUG 31486992   10534763    23409989
 
         # lưu lại pmid đã tìm similar
-        with open("data/pmids_da_tim_similar_artical.txt", 'a') as f:
+        with open(path_pmided, 'a') as f:
             f.write(pmid + '\n')
 
         full_url = pmid2Url(pmid)
