@@ -31,4 +31,5 @@ PMC_tree.txt chứa nội dung của tất cả đường dẫn paper trong PMC
 
 mai, chayj code tải lại PMC_extract_tree.txt
 thay url thành full link để download
-git hont
+link data
+`https://drive.google.com/file/d/1rQSyt8o5pDhP7cmAgzdH0KjcoSsRykdh/view?usp=sharing`
