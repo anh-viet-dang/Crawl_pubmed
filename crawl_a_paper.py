@@ -118,12 +118,12 @@ def find_cited_body(body: Tag)->Tag:
 
     format của tag html:
             <a
-              class="usa-button show-all-linked-articles"
-              data-href="/?linkname=pubmed_pubmed_citedin&amp;from_uid=32264957"
-              data-ga-category="cited_by"
-              data-ga-action="show_all"
+                class="usa-button show-all-linked-articles"
+                data-href="/?linkname=pubmed_pubmed_citedin&amp;from_uid=32264957"
+                data-ga-category="cited_by"
+                data-ga-action="show_all"
             >
-              See all "Cited by" articles
+                See all "Cited by" articles
             </a>
     """
     show_all_cited = body.find('a', {"class": "usa-button show-all-linked-articles",
@@ -150,42 +150,42 @@ if __name__ == "__main__":
     li = list_li[1]   # test thử với 1 phẩn tử
 
     r"""
-          <li class="skip-numbering" value="1">
+            <li class="skip-numbering" value="1">
         Wu F, Zhao S, Yu B, Chen YM, Wang W, Song ZG, et al. A new coronavirus
         associated with human respiratory disease in China. Nature.
         2020;579:265–269. doi: 10.1038/s41586-020-2008-3. -
         <a
-          class="reference-link"
-          data-ga-action="10.1038/s41586-020-2008-3"
-          data-ga-category="reference"
-          href="https://doi.org/10.1038/s41586-020-2008-3"
-          ref="linksrc=references_link&amp;ordinalpos=1"
+            class="reference-link"
+            data-ga-action="10.1038/s41586-020-2008-3"
+            data-ga-category="reference"
+            href="https://doi.org/10.1038/s41586-020-2008-3"
+            ref="linksrc=references_link&amp;ordinalpos=1"
         >
-          DOI
+            DOI
         </a>
 
         -
         <a
-          class="reference-link"
-          data-ga-action="PMC7094943"
-          data-ga-category="reference"
-          href="http://www.ncbi.nlm.nih.gov/pmc/articles/pmc7094943/"
-          ref="linksrc=references_link&amp;ordinalpos=2"
+            class="reference-link"
+            data-ga-action="PMC7094943"
+            data-ga-category="reference"
+            href="http://www.ncbi.nlm.nih.gov/pmc/articles/pmc7094943/"
+            ref="linksrc=references_link&amp;ordinalpos=2"
         >
-          PMC
+            PMC
         </a>
 
         -
         <a
-          class="reference-link"
-          data-ga-action="32015508"
-          data-ga-category="reference"
-          href="/32015508/"
-          ref="linksrc=references_link&amp;ordinalpos=3"
+            class="reference-link"
+            data-ga-action="32015508"
+            data-ga-category="reference"
+            href="/32015508/"
+            ref="linksrc=references_link&amp;ordinalpos=3"
         >
-          PubMed
+            PubMed
         </a>
-      </li>
+    </li>
     """
     # XXX DOI
     doi_Tag = li.find('a', {"ref":"linksrc=references_link&amp;ordinalpos=1"}, recursive= True)

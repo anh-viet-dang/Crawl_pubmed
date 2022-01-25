@@ -1,7 +1,6 @@
 # /home/agent/anaconda3/bin/python3.9
 from bs4.element import Tag
 from colorama import Fore
-
 from lib import send_request
 
 r"""
@@ -122,17 +121,16 @@ def get_pmid_F1similar() -> list:
 
 
 if __name__ == "__main__":
-    from crawl_a_paper import find_similar_body
-    from lib.read_pmid import read_pmid
+    from lib.one_paper import find_similar_body
+    from lib.utils import read_pmid
     from lib.utils import pmid2Url
 
     path_pmided = "data/pmids_da_tim_similar_artical.txt"
     path_pmid = r"data/pmid_gene.txt"
     list_pmid = read_pmid(path_pmid)        # list pmid đã được xác định là liên quan đến bệnh di truyền
     list_pmided = read_pmid(path_pmided)    # list pmid đã crawls
-
-
     list_F1_pmid_similar = get_pmid_F1similar()     # list pmid mới tìm được
+
 
     for pmid in list_pmid:
         if pmid in list_pmided: continue
