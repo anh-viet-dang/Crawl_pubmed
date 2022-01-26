@@ -1,3 +1,6 @@
+import requests
+from os.path import basename
+from .config import PMC as pmc_fth
 from .utils import send_request
 
 # from bs4 import BeautifulSoup
@@ -43,7 +46,7 @@ def get_tree_from_url() -> str:
         f.write(text)
     return text
 
-def get_tree_from_file() -> str:
+def get_tree_from_file(path_save) -> str:
     r"""
     read full text from path
     """
@@ -56,3 +59,45 @@ def get_info_in_tree(lines:list[str]) -> list:
     for line in lines:
         infos = line.split()
         
+
+def download_PMC(oa_pdf:str, folder_save:str):
+    """ ví dụ:
+        oa_pdf = r"oa_pdf/8d/22/20020509.PMC1193645.pdf"  # path lấy từ PMC_tree.txt
+        download từ url     https://ftp.ncbi.nlm.nih.gov/pub/pmc/
+    """
+
+    resp = requests.get(pmc_fth + oa_pdf)
+    if resp.status_code == 200:
+        with open(basename(oa_pdf), 'wb') as f:
+            f.write(resp.content)
+    else:
+        raise resp.status_code
+
+
+class PMC_tree(object):
+    def __init__(self) -> None:
+        with open('data/PMC_extract_tree.txt', 'r', encoding= 'utf-8') as f:
+            lines = f.read().strip().split()[1:]
+        
+        self.data = []
+        for line in lines:
+            line = line.split(' ')
+            pmid = line[0][5:].strip()
+            pmc = line[1].strip()
+            oa_pdf = line[2].strip()
+            self.data.append((pmid, pmc, oa_pdf))
+
+    @classmethod
+    def find_oa_PDF_from_pmid(self, pmid:str) -> str:
+        """
+        input pmid:str
+        dựa vào file    data/PMC_extract_tree.txt để tìm
+        return PMC
+        """
+        for line in self.data:
+            if line[0] == pmid.strip():
+                return line[2]
+
+
+
+if __name__ == "__main__":...

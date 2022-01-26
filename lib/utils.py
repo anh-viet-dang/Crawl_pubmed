@@ -5,7 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
-from .config import HOMEPAGE, params_query
+from .config import PUBMED, params_query
 
 
 def send_request(url: str) -> Tag:
@@ -73,16 +73,23 @@ def add_query(queryStr:str)->str:
     # FIXME s = r''.format(str)
 
     # join homepage and query string thành url hoàn chỉnh
-    full_url = urljoin(HOMEPAGE, queryStr)
+    full_url = urljoin(PUBMED, queryStr)
 
     return full_url
 
 
 def pmid2Url(pmid:str)->str:
-    url = r'{}'.format(urljoin(HOMEPAGE, pmid))
+    url = r'{}'.format(urljoin(PUBMED, pmid))
     if url.endswith(r'/'):
         return url
     return url + '/'
+
+
+def read_pmid(path: str) -> list:
+    with open(path, 'r') as f:
+        list_pmid = f.read().strip().split('\n')
+    
+    return list_pmid
 
 
 if __name__ == "__main__":
