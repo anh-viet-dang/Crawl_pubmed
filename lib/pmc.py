@@ -55,25 +55,6 @@ def get_tree_from_file(path_save) -> str:
     return text
 
 
-def get_info_in_tree(lines:list[str]) -> list:
-    for line in lines:
-        infos = line.split()
-        
-
-def download_PMC(oa_pdf:str, folder_save:str):
-    """ ví dụ:
-        oa_pdf = r"oa_pdf/8d/22/20020509.PMC1193645.pdf"  # path lấy từ PMC_tree.txt
-        download từ url     https://ftp.ncbi.nlm.nih.gov/pub/pmc/
-    """
-
-    resp = requests.get(pmc_fth + oa_pdf)
-    if resp.status_code == 200:
-        with open(basename(oa_pdf), 'wb') as f:
-            f.write(resp.content)
-    else:
-        raise resp.status_code
-
-
 class PMC_tree(object):
     def __init__(self) -> None:
         with open('data/PMC_extract_tree.txt', 'r', encoding= 'utf-8') as f:
@@ -98,6 +79,19 @@ class PMC_tree(object):
             if line[0] == pmid.strip():
                 return line[2]
 
+    @staticmethod
+    def download_PMC(oa_pdf:str, folder_save:str):
+        """ ví dụ:
+            oa_pdf = r"oa_pdf/8d/22/20020509.PMC1193645.pdf"  # path lấy từ PMC_tree.txt
+            download từ url     https://ftp.ncbi.nlm.nih.gov/pub/pmc/
+        """
+
+        resp = requests.get(pmc_fth + oa_pdf)
+        if resp.status_code == 200:
+            with open(basename(oa_pdf), 'wb') as f:
+                f.write(resp.content)
+        else:
+            raise resp.status_code
 
 
 if __name__ == "__main__":...

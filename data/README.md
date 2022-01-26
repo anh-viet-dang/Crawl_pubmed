@@ -28,8 +28,11 @@ pmid_not_gene.txt là các pmid của các paper ko liên quan đến bệnh di 
 
 PMC_tree.txt chứa nội dung của tất cả đường dẫn paper trong PMC
 
+## PMC-ids.csv  
+`Journal Title,ISSN,eISSN,Year,Volume,Issue,Page,DOI,PMCID,PMID,Manuscript Id,Release Date`
 
-mai, chayj code tải lại PMC_extract_tree.txt
+
+### TODO mai, chayj code tải lại PMC_extract_tree.txt
 thay url thành full link để download
 link data
 `https://drive.google.com/file/d/1rQSyt8o5pDhP7cmAgzdH0KjcoSsRykdh/view?usp=sharing`
