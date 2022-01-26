@@ -1,44 +1,15 @@
-# from lib.pmc import get_tree_from_url
-from lib.pmc import get_tree_from_file, get_info_in_tree
+from lib.pmc import PMC_tree
 
-# get_tree_from_url()
-text = get_tree_from_file()
-lines = text.split('\n')
+data_pmc = PMC_tree()
 
+with open("data/pmids.txt", 'r', encoding= 'utf-8') as f:
+    pmids = f.read().strip().split('\n')
 
-def get_info_in_tree(lines:list[str]) -> list[str]:
-    f = open("data/PMC_extract_tree.txt", 'w', encoding= 'utf-8')
-    for line in lines:
-        list_info = line.split()
-        url = list_info[0].strip()
-        pmc = ''
-        pmid = ''
-
-        for i in list_info[1:]:
-            i = i.strip()
-            flag_pmc = False
-            flag_pmid = False
-            if "PMC" in i:
-                pmc = i
-                flag_pmc = True
-
-            elif "PMID:" in i:
-                pmid = i
-                flag_pmid = True
-            
-            if flag_pmc and flag_pmid:
-                break
-        
-        if pmid == '': pmid = r"PMID:"
-        if pmc == '': pmc = r"PMC"
-        kq = pmid + ' ' + pmc + ' ' + url
-        
-        f.write(kq + '\n')
-        # print(kq)
-    f.close()
-
-
-
-get_info_in_tree(lines)
-
-
+for pmid in pmids:
+    oa_pdf = data_pmc.find_oa_PDF_from_pmid(pmid.strip())
+    if oa_pdf is None:
+        print(pmid, "not found")
+        with open("pmid_not_found_in_pmc_tree.txt", 'a', encoding= 'utf-8') as f:
+            f.write(pmid + '\n')
+    else:
+        data_pmc.download_PMC(oa_pdf, 'data/full_text_pdf')

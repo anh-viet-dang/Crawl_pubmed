@@ -1,5 +1,7 @@
+from os.path import basename, join
+
 import requests
-from os.path import basename
+
 from .config import PMC as pmc_fth
 from .utils import send_request
 
@@ -56,11 +58,13 @@ def get_tree_from_file(path_save) -> str:
 
 
 class PMC_tree(object):
+    data = []
+    
     def __init__(self) -> None:
         with open('data/PMC_extract_tree.txt', 'r', encoding= 'utf-8') as f:
-            lines = f.read().strip().split()[1:]
+            lines = f.read().strip().split('\n')[1:]
         
-        self.data = []
+        # self.data = []
         for line in lines:
             line = line.split(' ')
             pmid = line[0][5:].strip()
@@ -78,6 +82,8 @@ class PMC_tree(object):
         for line in self.data:
             if line[0] == pmid.strip():
                 return line[2]
+        return None
+
 
     @staticmethod
     def download_PMC(oa_pdf:str, folder_save:str):
@@ -88,10 +94,11 @@ class PMC_tree(object):
 
         resp = requests.get(pmc_fth + oa_pdf)
         if resp.status_code == 200:
-            with open(basename(oa_pdf), 'wb') as f:
+            name_save = join(folder_save, basename(oa_pdf))
+            with open(name_save, 'wb') as f:
                 f.write(resp.content)
         else:
-            raise resp.status_code
+            print(resp.status_code, ' -> ', oa_pdf)
 
 
 if __name__ == "__main__":...
