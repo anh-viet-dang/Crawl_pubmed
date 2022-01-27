@@ -121,16 +121,16 @@ def find_reference_body(body: Tag) -> Tag:
         >>> return body của page chứa full references paper
 
         format tag html cần tìm
-                  <button
+                    <button
                 aria-controls="top-references-list-1"
                 class="show-all"
                 data-ga-action="show_more"
                 data-ga-category="reference"
                 data-next-page-url="/32264957/references/"
                 ref="linksrc=show_all_references_link"
-              >
+            >
                 Show all 19 references
-              </button>
+            </button>
     """
 
     show_all_ref = body.find('button', {"aria-controls": "top-references-list-1",
@@ -178,12 +178,12 @@ def find_cited_body(body: Tag)->Tag:
 
     format của tag html:
             <a
-              class="usa-button show-all-linked-articles"
-              data-href="/?linkname=pubmed_pubmed_citedin&amp;from_uid=32264957"
-              data-ga-category="cited_by"
-              data-ga-action="show_all"
+                class="usa-button show-all-linked-articles"
+                data-href="/?linkname=pubmed_pubmed_citedin&amp;from_uid=32264957"
+                data-ga-category="cited_by"
+                data-ga-action="show_all"
             >
-              See all "Cited by" articles
+                See all "Cited by" articles
             </a>
     """
     show_all_cited = body.find('a', {"class": "usa-button show-all-linked-articles",
