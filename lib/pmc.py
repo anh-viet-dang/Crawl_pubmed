@@ -1,4 +1,4 @@
-from os.path import basename, join
+from os.path import join
 
 import requests
 
@@ -86,7 +86,7 @@ class PMC_tree(object):
 
 
     @staticmethod
-    def download_PMC(oa_pdf:str, folder_save:str):
+    def download_PMC(oa_pdf:str, folder_save:str, pmid):
         """ ví dụ:
             oa_pdf = r"oa_pdf/8d/22/20020509.PMC1193645.pdf"  # path lấy từ PMC_tree.txt
             download từ url     https://ftp.ncbi.nlm.nih.gov/pub/pmc/
@@ -94,9 +94,10 @@ class PMC_tree(object):
 
         resp = requests.get(pmc_fth + oa_pdf)
         if resp.status_code == 200:
-            name_save = join(folder_save, basename(oa_pdf))
+            name_save = join(folder_save, pmid + '.pdf')
             with open(name_save, 'wb') as f:
                 f.write(resp.content)
+            # print(oa_pdf)
         else:
             print(resp.status_code, ' -> ', oa_pdf)
 
