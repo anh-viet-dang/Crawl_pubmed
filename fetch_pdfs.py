@@ -9,7 +9,6 @@
 import argparse
 import sys
 
-
 # In[20]:
 
 
@@ -17,7 +16,7 @@ parser=argparse.ArgumentParser()
 parser._optionals.title = "Flag Arguments"
 parser.add_argument('-pmids',help="Comma separated list of pmids to fetch. Must include -pmids or -pmf.", default='%#$')
 parser.add_argument('-pmf',help="File with pmids to fetch inside, one pmid per line. Optionally, the file can be a tsv with a second column of names to save each pmid's article with (without '.pdf' at the end). Must include -pmids or -pmf", default='%#$')
-parser.add_argument('-out',help="Output directory for fetched articles.  Default: fetched_pdfs", default="fetched_pdfs")
+parser.add_argument('-out',help="Output directory for fetched articles.  Default: data/fetched_pdfs", default="data/fetched_pdfs")
 parser.add_argument('-errors',help="Output file path for pmids which failed to fetch.  Default: unfetched_pmids.tsv", default="unfetched_pmids.tsv")
 parser.add_argument('-maxRetries',help="Change max number of retries per article on an error 104.  Default: 3", default=3,type=int)
 args = vars(parser.parse_args())
@@ -58,13 +57,13 @@ if args['pmids']!='%#$' and args['pmf']!='%#$':
 # In[74]:
 
 
-import sys
 import os
-import requests
-from bs4 import BeautifulSoup
 import re
+import sys
 import urllib
 
+import requests
+from bs4 import BeautifulSoup
 
 # In[5]:
 
