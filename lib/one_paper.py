@@ -31,10 +31,8 @@ def find_DOI(body:Tag) -> str:
                                     "rel":"noopener",
                                     "target":"_blank"
                                     }, recursive=True)
-    if doi_Tag is None:
-        return ""
-    else:
-        return doi_Tag.get_text(strip=True).strip()
+    if doi_Tag is None: return ""
+    else:               return doi_Tag.get_text(strip=True).strip()
 
 
 def find_PMC(body:Tag) -> str:

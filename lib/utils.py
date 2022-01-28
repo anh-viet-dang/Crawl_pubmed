@@ -79,7 +79,7 @@ def add_query(queryStr:str)->str:
 
 
 def pmid2Url(pmid:str)->str:
-    url = r'{}'.format(urljoin(PUBMED, pmid))
+    url = r'{}'.format(urljoin(PUBMED, pmid.strip()))
     if url.endswith(r'/'):
         return url
     return url + '/'
