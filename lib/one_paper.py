@@ -1,9 +1,151 @@
 from urllib.parse import urljoin
-
+from typing import Any
 from bs4.element import Tag
 
 from .config import PUBMED
-from .utils import add_query, send_request
+from .utils import add_query, send_request, pmid2Url
+
+
+class ThePaper(object):
+    pmid:str
+    pmcid:str
+    doi:str
+    title:str
+    abstract:str
+
+    body:Tag
+    similar:list[tuple[str, str, str]]
+    reference:list[tuple[str, str, str]]
+    cited:list[tuple[str, str, str]]
+
+    def __init__(self, pmid:str) -> None:
+        self.pmid = pmid
+        self.body = send_request(pmid2Url(pmid))
+    # @overload
+    # def __init__(self, pmcid:str) -> None:
+    #     self.pmcid = pmcid
+
+    
+    def __getattribute__(self, __name: str) -> Any:
+        pass
+    def __setattr__(self, __name: str, __value: Any) -> None:
+        pass
+
+    def get_DOI(self) -> str:
+        r"""
+                    <li>
+                <span class="identifier doi">
+                    <span class="id-label"> DOI: </span>
+                    <a
+                    class="id-link"
+                    data-ga-action="DOI"
+                    data-ga-category="full_text"
+                    href="https://doi.org/10.1016/0165-0270(89)90131-3"
+                    ref="linksrc=article_id_link&amp;article_id=10.1016/0165-0270(89)90131-3&amp;id_type=DOI"
+                    rel="noopener"
+                    target="_blank"
+                    >
+                    10.1016/0165-0270(89)90131-3
+                    </a>
+                </span>
+                </li>
+        """
+        doi_Tag = self.body.find("a", attrs= {"class":"id-link",
+                                        "data-ga-action":"DOI",
+                                        "data-ga-category":"full_text",
+                                        "rel":"noopener",
+                                        "target":"_blank"
+                                        }, recursive=True)
+        if doi_Tag is None: return ""
+        else:               return doi_Tag.get_text(strip=True).strip()
+
+    def get_PMC(self) -> str:
+        r"""
+                    <li>
+                <span class="identifier pmc">
+                    <span class="id-label"> PMCID: </span>
+                    <a
+                    class="id-link"
+                    data-ga-action="PMCID"
+                    data-ga-category="full_text"
+                    href="http://www.ncbi.nlm.nih.gov/pmc/articles/pmc1435730/"
+                    ref="linksrc=article_id_link&amp;article_id=PMC1435730&amp;id_type=PMC"
+                    rel="noopener"
+                    target="_blank"
+                    >
+                    PMC1435730
+                    </a>
+                </span>
+                </li>
+        """
+        pmcid_tag = self.body.find('a', attrs={"class":"id-link",
+                                        "data-ga-action":"PMCID",
+                                        "data-ga-category":"full_text",
+                                        "rel":"noopener",
+                                        "target":"_blank"
+                                        }, recursive= True)
+        if pmcid_tag is None:
+            return ""       # paper không có pmcid
+        else:
+            return pmcid_tag.get_text(strip= True).strip()
+
+    def get_title(self) -> str:
+    # get title of paper
+        title = self.body.find(name='h1', attrs={"class": "heading-title"})
+        title =  title.get_text(strip= True).strip()
+        return ' '.join(title.split())
+    
+    def get_abstract(self) -> str:
+        # get abstrack of paper
+        absTag = self.body.find(name='div', attrs={"class": "abstract"}, recursive=True)
+        if absTag is None:
+            # tìm sai keywork trong tag html
+            # nên ko tìm đc Tag chứa abstract
+            raise Exception("check tag html và key:value trong tìm kiếm")
+        else:
+            _abstract = absTag.find('p')
+            if _abstract is None:
+                # NOTE format của đoạn html ko chứa abstract
+                r"""
+                <div class="abstract">
+                    <em class="empty-abstract">No abstract available</em>
+                </div>
+                """
+                # trường hợp paper ko có abstract
+                msg = absTag.find(
+                    'em', {"class": "empty-abstract"}, recursive=True)
+                print(msg.get_text().strip())
+                abstract = ""
+            else:
+                # NOTE format của đoạn html có chứa abstract
+                r"""
+                <div class="abstract" id="abstract">
+                    <h2 class="title">Abstract</h2>
+                    <div class="abstract-content selected" id="enc-abstract">
+                        <p>
+                            This article summarizes what is currently known about the 2019 novel
+                            coronavirus and offers interim guidance.
+                        </p>
+                    </div>
+                </div>
+                """
+                # trường hợp paper có abstract
+                abstract = _abstract.get_text().strip()
+                abstract = ' '.join(abstract.split()) # loại bỏ các dấu xuống dòng, nhiều space về 1 space
+        return abstract
+
+    #TODO đọc get and set trong python
+    # TODO hoàn thiện 3 medthod get_ref, get_similar, get_cited
+    # tham khảo one_paper.py, get_similar đã dùng đc
+
+    def download_full_text(self):
+        r"""
+        >>> thử download trong PMC qua fth, tham khảo class pmc.PMC_tree
+        >>> nếu ko có thì download = doi    # usingDOI_download_Scihub.py
+        >>> còn lại thì viết ra file ko down đc, tiếp tục download = fetch_pdfs.py
+        """
+
+
 
 
 def find_DOI(body:Tag) -> str:
