@@ -4,8 +4,8 @@ from urllib.parse import urljoin
 from bs4.element import Tag
 from colorama import Fore  # , Back, Style
 
-from lib import add_query, pmid2Url, send_request
-from lib.config import HOMEPAGE
+from lib.config import PUBMED
+from lib.utils import add_query, pmid2Url, send_request
 
 
 def find_title(body: Tag) -> str:
@@ -83,7 +83,7 @@ def find_reference_body(body: Tag) -> Tag:
     nextPageUrl = show_all_ref.__getitem__(key="data-next-page-url")    # "/32264957/references/"
 
     # ref paper KO theo format nên ko dùng func add_query
-    full_ref_url = urljoin(HOMEPAGE, nextPageUrl)
+    full_ref_url = urljoin(PUBMED, nextPageUrl)
     ref_body = send_request(full_ref_url)
 
 

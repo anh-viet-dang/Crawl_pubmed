@@ -56,7 +56,7 @@ def split_info(info_one_paper: str) -> list:
     return list_info
 
 
-def get_from_format_pubmed(body: Tag) -> list:
+def get_from_format_pubmed(body: Tag) -> list[list]:
     """
     Lấy thông tin PMID, title, abstract từ respond có query &format=pubmed
     Tạm thời áp dụng cho 
@@ -116,3 +116,7 @@ def get_pmid_F1similar() -> list:
         lines = f.read().strip().split('\n')
 
     return [l.strip() for i, l in enumerate(lines) if i % 4 == 0]
+    
+
+def check_pmid():
+    ...

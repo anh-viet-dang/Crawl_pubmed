@@ -1,3 +1,4 @@
+import os
 from random import choice
 from urllib.parse import parse_qsl, urlencode, urljoin
 
@@ -86,10 +87,13 @@ def pmid2Url(pmid:str)->str:
 
 
 def read_pmid(path: str) -> list:
+    if not os.path.isfile(path):
+        print("ko tìm thấy file pmids")
+        return []
     with open(path, 'r') as f:
         list_pmid = f.read().strip().split('\n')
     
-    return list_pmid
+    return list(set(list_pmid))
 
 
 if __name__ == "__main__":

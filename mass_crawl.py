@@ -1,9 +1,10 @@
+import os
+
 from bs4.element import Tag
 from colorama import Fore
 
-from crawl_a_paper import (find_abstract, find_cited_body, find_reference_body,
-                           find_similar_body, find_title)
-from lib import pmid2Url, send_request
+from crawl_a_paper import find_abstract, find_title
+from lib.utils import pmid2Url, send_request
 
 """
 Từ pmid đã có, thực hiện tìm pmid similar, cited, reference
@@ -22,7 +23,7 @@ elif classfication (title, abstract):
 """
 
 
-def get_list_pmid(path=r"data/pmid_gene.txt") -> list:
+def get_list_pmid(path=r"data/pmids.txt") -> list:
     f = open(path, 'r')
     pmids = f.read().strip().split('\n')
     f.close()
@@ -40,15 +41,19 @@ def find_info_paper(body:Tag)->tuple:
 def get_info_from_pmid():
 
     r"""
-    thu thập thông tin về title, abstract từ các pmid đã biết từ trước
+    thu thập thông tin về title, abstract 
+    từ các pmid đã biết từ trước
     danh sách pmid lấy từ data/pmid_gene.txt
     kết quả đc lưu ở data/Pmid_title_abstract.txt
     """
 
-    path = "data/Pmid_title_abstract.txt"
-    with open(path, 'r') as f:
-        _pmids = f.read().strip().split('\n')
-    pmided = [pid for i, pid in enumerate(_pmids) if i%4 == 0]  #list pmid đã crawl
+    path = "data/info_paper.txt"
+    if os.path.isfile(path):
+        with open(path, 'r') as f:
+            _pmids = f.read().strip().split('\n')
+        pmided = [pid for i, pid in enumerate(_pmids) if i%4 == 0]  #list pmid đã crawl
+    else: 
+        pmided = []
 
     list_pmids = get_list_pmid()    
     pmid_continue = []  # list pmid chưa crawl
@@ -56,7 +61,7 @@ def get_info_from_pmid():
         if pid not in pmided:
             pmid_continue.append(pid)
 
-    f = open(path, 'a')
+    f = open(path, 'a', encoding= 'utf-8')
     for pmid in pmid_continue:
         url_pmid = pmid2Url(pmid)       # get full url
         body_paper = send_request(url_pmid)     # requests
@@ -64,7 +69,7 @@ def get_info_from_pmid():
 
         print(Fore.RED + pmid)
         print(Fore.CYAN + title)
-        print(Fore.MAGENTA + abstract)
+        print(Fore.LIGHTMAGENTA_EX + abstract)
 
         f.write(pmid + '\n' + title + '\n' + abstract + '\n')
         f.write('\n')
@@ -72,4 +77,4 @@ def get_info_from_pmid():
 
 
 if __name__ == "__main__":
-    ...
+    get_info_from_pmid()
