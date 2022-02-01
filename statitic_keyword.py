@@ -6,11 +6,13 @@ thống kê, tìm các keyword phổ biến trong title, abstract
 
 """
 pmid_path = "data/pmids.txt"
+
 # pmid_simi_path = "data/similarF1.txt"
 
-path_info = "data/info_paper.txt"
-with open(path_info, 'r', encoding='utf-8') as f:
-    lines = f.read().strip().split('\n')
+path_info_f0 = "data/info_paper.txt"
+path_info_f1 = "data/similarF1_Feb1.txt"
+with open(path_info_f0, 'r', encoding='utf-8') as f0, open(path_info_f0, 'r', encoding='utf-8') as f1:
+    lines = f0.read().strip().split('\n') + f1.read().strip().split('\n')
 
 def stat_title():
     titles = [l for i, l in enumerate(lines) if i%4 == 1]
@@ -41,19 +43,20 @@ def stat_abstract():
 
 def filter_keyword():
     with open("data/keyword_title.txt", 'r', encoding= 'utf-8') as f:
-        keywords = f.read().strip().split('\n')
-    keywords_title = keywords
-
+        lines = f.read().strip().split('\n')
+    keywords_title = [k.split()[0].strip().lower() for k in lines]
+    # print(keywords_title[:5])
 
     with open("data/keyword_abstract.txt", 'r', encoding= 'utf-8') as f:
-        keywords = f.read().strip().split('\n')
-    keywords_abstract = keywords
+        lines = f.read().strip().split('\n')
+    key_words_abstract = [i.split()[0].strip().lower() for i in lines]
+    # print(key_words_abstract[:5])
 
-    new_words = [w for w in keywords_abstract if w not in keywords_title]
+    new_words = [w for w in key_words_abstract if w not in keywords_title]
     with open("data/filter_keyword_abstract.txt", 'w', encoding= 'utf-8') as f:
         f.write('\n'.join(new_words) + '\n')
 
 if __name__ == "__main__":
-    # stat_abstract()
+    stat_abstract()
     # stat_title()
     filter_keyword()
