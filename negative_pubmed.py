@@ -2,8 +2,7 @@
 import os.path
 from random import shuffle
 
-from numpy import negative
-from sympy import E
+from colorama import Fore
 
 from lib.one_paper import find_abstract, find_title
 from lib.utils import pmid2Url, send_request
@@ -42,13 +41,15 @@ def get_skip_pmid():
         lines = f.read().strip().split('\n')
     pmid3 = [l.strip() for i, l in enumerate(lines) if i%4==0]
 
+    print(Fore.RED +'number of negative pmid = ', len(pmid3))
+
     #3 pmid 
     return list(set(pmid1 + pmid2 + pmid3))
 
 def get_list_keywords():
     with open("data/keyWord_positive.txt", 'r', encoding= 'utf-8') as f:
         keywords = f.read().strip().split('\n')
-    list_keyword = [w.strip('.').strip(',').strip(':') for w in keywords]
+    list_keyword = [w.strip('.').strip(',').strip(':').lower() for w in keywords]
     return list(set(list_keyword))
 
 class Keyword(object):
@@ -56,9 +57,10 @@ class Keyword(object):
 
     @classmethod
     def check_keywords(self, words:str) -> bool:
-        
+        words = words.lower()
         for w in self.keywords:
             if w in words:
+                # print(Fore.LIGHTGREEN_EX + w)       #FIXME
                 return False
         return True
 
@@ -84,7 +86,7 @@ if __name__ == "__main__":
         title, abstract = pmid2info(pmid)
         if keyword.check_keywords(title + abstract):
             with open(negative_data_path, 'a', encoding= 'utf-8') as f:
-                f.write(pmid + '\n')
-                f.write(title + '\n')
-                f.write(abstract + '\n')
-                f.write('\n')
+                f.write(pmid + '\n'+ title + '\n' + abstract + '\n\n')
+                # f.write(title + '\n')
+                # f.write(abstract + '\n')
+                # f.write('\n')
