@@ -45,7 +45,7 @@ def send_request(url: str) -> Tag:
     headers = {'User-Agent': choice(desktop_agents),
                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'}
 
-    resp = requests.get(url=url, headers=headers)
+    resp = requests.get(url=url, headers=headers, timeout=5)
     soup = BeautifulSoup(resp.text, "lxml")
     body = soup.find('body')
 

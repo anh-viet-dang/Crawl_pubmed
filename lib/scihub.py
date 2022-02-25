@@ -1,6 +1,6 @@
 import requests
 
-from .config import SCIHUB
+from .config import SCIHUB, PMID2DOI_FILE_PATH
 from .one_paper import find_DOI
 from .utils import pmid2Url, send_request
 
@@ -11,15 +11,16 @@ from .utils import pmid2Url, send_request
 
 class Scihub:
     @staticmethod
-    def pmid2doi(pmid:str) -> str:
+    def pmid2doi(pmid:str, is_save:bool = True, path_save:str= PMID2DOI_FILE_PATH) -> str:
         """
         sent request to pubmed để tìm doi
         """
         full_url = pmid2Url(pmid)
         body = send_request(full_url)
         doi = find_DOI(body)
-        with open("data/map_pmid_doi.txt", 'a', encoding= 'utf-8') as f:
-            f.write(pmid + ' ' + doi + '\n')
+        if is_save:
+            with open(path_save, 'a', encoding= 'utf-8') as f:
+                f.write(pmid + ',' + doi + '\n')
         return doi
 
     @staticmethod
