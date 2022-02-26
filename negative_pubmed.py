@@ -44,7 +44,7 @@ def get_skip_pmid():
     print(Fore.RED +'number of negative pmid = ', len(pmid3))
 
     #3 pmid 
-    return list(set(pmid1 + pmid2 + pmid3))
+    return list(set(pmid1 + pmid2 + pmid3)), len(pmid3)
 
 def get_list_keywords():
     with open("data/keyWord_positive.txt", 'r', encoding= 'utf-8') as f:
@@ -78,13 +78,15 @@ if __name__ == "__main__":
     keyword = Keyword()
 
     negative_data_path = "data/negative_Feb1.txt"
-    list_skip_pmid = get_skip_pmid()
+    list_skip_pmid, ccc = get_skip_pmid()
     for pmid in list_pmid_negative:
         if pmid in list_skip_pmid:
             continue
         print(pmid)
         title, abstract = pmid2info(pmid)
         if keyword.check_keywords(title + abstract):
+            ccc+=1
+            print(ccc, pmid)
             with open(negative_data_path, 'a', encoding= 'utf-8') as f:
                 f.write(pmid + '\n'+ title + '\n' + abstract + '\n\n')
                 # f.write(title + '\n')
