@@ -24,7 +24,7 @@ def get_list_pmid(path:str) -> list:
                 print(Fore.CYAN + str(i), Fore.BLUE + line)  #PMID
                 print(Fore.RED + lines[i+1])
                 print(Fore.LIGHTGREEN_EX + lines[i+2])
-                exit()
+                exit()  # kết thúc chương trình
             pmids.append(line.strip())
 
     return pmids

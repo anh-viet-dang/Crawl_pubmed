@@ -3,12 +3,13 @@ from random import choice
 from urllib.parse import parse_qsl, urlencode, urljoin
 
 import requests
+from retrying import retry
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
 from .config import PUBMED, params_query
 
-
+@retry(wait_random_min=32, wait_random_max=3000, stop_max_attempt_number=5)
 def send_request(url: str) -> Tag:
     r"""
          ____________________________________________________
