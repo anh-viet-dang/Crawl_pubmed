@@ -1,4 +1,4 @@
-import os
+from os.path import isfile
 from random import choice
 from urllib.parse import parse_qsl, urlencode, urljoin
 
@@ -7,7 +7,8 @@ from retrying import retry
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
-from .config import PUBMED, params_query
+from .config import PUBMED, params_query, PMID2DOI_FILE_PATH
+
 
 @retry(wait_random_min=32, wait_random_max=3000, stop_max_attempt_number=5)
 def send_request(url: str) -> Tag:
@@ -88,7 +89,7 @@ def pmid2Url(pmid:str)->str:
 
 
 def read_pmid(path: str) -> list:
-    if not os.path.isfile(path):
+    if not isfile(path):
         print("ko tìm thấy file pmids")
         return []
     with open(path, 'r') as f:

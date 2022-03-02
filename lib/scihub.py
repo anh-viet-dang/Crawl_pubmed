@@ -1,4 +1,4 @@
-from .config import PMID2DOI_FILE_PATH, SCIHUB
+from .config import PMID2DOI_FILE_PATH
 from .one_paper import find_DOI
 from .utils import pmid2Url, send_request
 
@@ -54,6 +54,22 @@ class SciHub(object):
                 f.write(pmid + ',' + doi + '\n')
 
         return doi
+
+    @staticmethod
+    def rewrite_pmid2doi():
+        with open(PMID2DOI_FILE_PATH, 'r', encoding= 'utf-8') as f:
+            lines = f.read().strip().split('\n')
+
+        newline = []
+        pmids = []
+        for line in lines:
+            pmid = line.split(',')
+            if pmid not in pmids:
+                pmids.append(pmid)
+                newline.append(line)
+        
+        with open(PMID2DOI_FILE_PATH, 'w', encoding= 'utf-8') as f:
+            f.write('\n'.join(newline) + '\n')
 
     def __init__(self):
         self.sess = requests.Session()
@@ -288,34 +304,3 @@ class SciHub(object):
         return '%s-%s' % (pdf_hash, name[-20:])
 
 class CaptchaNeedException(Exception): ...
-
-class _Scihub:
-    @staticmethod
-    def pmid2doi(pmid:str, is_save:bool = True, path_save:str= PMID2DOI_FILE_PATH) -> str:
-        """
-        sent request to pubmed để tìm doi
-        """
-        full_url = pmid2Url(pmid)
-        body = send_request(full_url)
-        doi = find_DOI(body)
-        if is_save:
-            with open(path_save, 'a', encoding= 'utf-8') as f:
-                f.write(pmid + ',' + doi + '\n')
-        return doi
-
-    @staticmethod
-    def download_scihub(doi:str, path_save:str) -> int:
-        """
-        input doi:str
-        return status_code của respones
-        save pdf nếu = 200
-        """
-        if doi == '':
-            return 0
-
-        resp = requests.get(SCIHUB + doi.strip())
-        if resp.status_code == 200:
-            with open (path_save, 'wb') as f:
-                f.write(resp.content)
-        return resp.status_code
-    
