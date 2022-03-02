@@ -63,7 +63,7 @@ class SciHub(object):
         newline = []
         pmids = []
         for line in lines:
-            pmid = line.split(',')
+            pmid = line.split(',')[0].strip()
             if pmid not in pmids:
                 pmids.append(pmid)
                 newline.append(line)

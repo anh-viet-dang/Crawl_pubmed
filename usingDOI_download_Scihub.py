@@ -48,13 +48,18 @@ def get_pmid_sent_request() -> list:
 
     with open(PMID2DOI_FILE_PATH, 'r', encoding= 'utf-8') as f:
         lines = f.read().strip().split('\n')
-        
+
+    newlines = []
     pmids = []
     for line in lines:
         pmid = line.split(',')[0].strip()
         if pmid not in pmids:
             pmids.append(pmid)
-
+            newlines.append(line)
+    
+    with open(PMID2DOI_FILE_PATH, 'w', encoding= 'utf-8') as f:
+        f.write('\n'.join(newlines) + '\n')
+    
     return pmids
 
 
