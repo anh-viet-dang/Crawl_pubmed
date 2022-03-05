@@ -54,8 +54,8 @@ def get_pmid_sent_request() -> list:
     for line in lines:
         pmid = line.split(',')[0].strip()
         if pmid not in pmids:
-            pmids.append(pmid)
-            newlines.append(line)
+            pmids.append(pmid)      # return
+            newlines.append(line)   # record in csv file
     
     with open(PMID2DOI_FILE_PATH, 'w', encoding= 'utf-8') as f:
         f.write('\n'.join(newlines) + '\n')
