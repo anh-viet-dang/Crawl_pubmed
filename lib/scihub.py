@@ -18,10 +18,11 @@ import hashlib
 import logging
 import os
 import re
-from colorama import Fore
+
 import requests
 import urllib3
 from bs4 import BeautifulSoup
+from colorama import Fore
 from retrying import retry
 
 # log config
@@ -174,11 +175,12 @@ class SciHub(object):
             start += 10
 
     @retry(wait_random_min=100, wait_random_max=1000, stop_max_attempt_number=10)
-    def download(self, identifier, destination='', path=None):
+    def download(self, identifier, destination='', path=None) -> int:
         """
         Downloads a paper from sci-hub given an indentifier (DOI, PMID, URL).
         Currently, this can potentially be blocked by a captcha if a certain
         limit has been reached.
+        >>> return size of downloaded pdf file : int
         """
         data = self.fetch(identifier)
 
