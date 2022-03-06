@@ -73,7 +73,7 @@ if __name__ == "__main__":
     sh = SciHub()
     pmid_crawls, size = get_crawled_fulltext_pmid() # pmid đã craws và size 
     pmid_crawls = set(pmid_crawls + get_pmid_sent_request())
-    print(Fore.RED + "size = %.2f Gigabytes" % size/2**30 + Fore.RESET)
+    print(Fore.RED + "size = %.2f Gigabytes" % (size/2**30) + Fore.RESET)
 
     # duyệt qua từng pmid để download
     for pmid in pmid_similar:
