@@ -17,8 +17,9 @@ def get_all_pmid() -> list:
         lines = f.read().strip().split('\n')
     return [p.strip() for p in lines]
     # return pmids
-
-if __name__ == "__main__":
+    
+    
+def download():
     sh = SciHub()
     
     all_pmids = get_all_pmid()
@@ -39,3 +40,6 @@ if __name__ == "__main__":
 
         except Exception as e:
             print(e)
+                
+if __name__ == "__main__":
+    download()
