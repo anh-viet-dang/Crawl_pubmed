@@ -1,4 +1,4 @@
-from os.path import join
+from os.path import join, getsize
 
 import requests
 
@@ -97,7 +97,7 @@ class PMC_tree(object):
             name_save = join(folder_save, pmid + '.pdf')
             with open(name_save, 'wb') as f:
                 f.write(resp.content)
-        return resp.status_code
+        return resp.status_code, getsize(name_save)
 
 
 if __name__ == "__main__":...

@@ -2,7 +2,7 @@
 dùng doi để download fulltext từ scihub
 """
 from os.path import join, getsize
-from os import listdir
+from os import listdir, walk, remove
 from colorama import Fore
 
 from lib.scihub import SciHub
@@ -30,17 +30,26 @@ def get_list_pmid(path:str) -> list:
     return pmids
 
 
-def get_crawled_fulltext_pmid() -> tuple:
+def get_crawled_fulltext_pmid(folder) -> tuple:
     # lấy danh sách paper và maxsize đã download full path
-    total_size = 0
+    total_size = 0  # đếm dung lượng folder
+    total_pdf = 0   # đếm số lượng file trong folder
     pmids = []
-    for pdf in listdir(folder_save_pdf):
-        if pdf.endswith('.pdf'):
-            total_size += getsize( join( folder_save_pdf, pdf))
-            pmids.append(pdf.strip('.pdf'))
 
-    # return [pdf.strip('.pdf') for pdf in os.listdir(folder_save_pdf) if pdf.endswith('.pdf')]
-    return pmids, total_size
+    for root, _, files in walk(folder):
+        for file in files:
+            if file.endswith('.pdf'):
+                pmid = file.strip('.pdf')
+                path_pdf = join(root, file)
+                
+                if pmid in pmids:
+                    remove(path_pdf)        # xóa file trùng
+                    print(Fore.RED, 'remove ', pmid)
+                else:
+                    total_size += getsize(path_pdf)
+                    total_pdf += 1
+
+    return pmids, total_size, total_pdf
 
 
 def get_pmid_sent_request() -> list:
@@ -64,19 +73,19 @@ def get_pmid_sent_request() -> list:
 
 
 if __name__ == "__main__":
-    # pmid_hgmd = get_list_pmid(PMID_HGMD)
-    pmid_similar = get_list_pmid(PMID_SIMI)
+    pmid_hgmd = get_list_pmid(PMID_HGMD)
+    # pmid_similar = get_list_pmid(PMID_SIMI)
     # pmid_negative = get_list_pmid(PMID_NEGA)
 
 
     max_size = round(40* 2**30) 
     sh = SciHub()
-    pmid_crawls, size = get_crawled_fulltext_pmid() # pmid đã craws và size 
+    pmid_crawls, size, total_pdf = get_crawled_fulltext_pmid(folder_save_pdf) # pmid đã craws và size 
     pmid_crawls = set(pmid_crawls + get_pmid_sent_request())
-    print(Fore.RED + "size = %.2f Gigabytes" % (size/2**30) + Fore.RESET)
+    print(Fore.RED, "{:.2f} Gigabytes / {} pdfs".format((size/2**30), total_pdf), Fore.RESET)
 
     # duyệt qua từng pmid để download
-    for pmid in pmid_similar:
+    for pmid in pmid_hgmd:
         if pmid in pmid_crawls:
             # bỏ qua pmid đã send request, tìm chúng trong danh sách doi
             # bỏ qua pmid đã crawl xong pdf
