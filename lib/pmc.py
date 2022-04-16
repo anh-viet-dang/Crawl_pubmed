@@ -1,4 +1,4 @@
-from os.path import join, getsize
+from os.path import getsize, isfile
 
 import requests
 
@@ -86,18 +86,20 @@ class PMC_tree(object):
 
 
     @staticmethod
-    def download_PMC(oa_pdf:str, folder_save:str, pmid) -> int:
+    def download_PMC(oa_pdf:str, path_save:str) -> tuple:
         """ ví dụ:
             oa_pdf = r"oa_pdf/8d/22/20020509.PMC1193645.pdf"  # path lấy từ PMC_tree.txt
             download từ url     https://ftp.ncbi.nlm.nih.gov/pub/pmc/
         """
 
         resp = requests.get(pmc_fth + oa_pdf)
-        if resp.status_code == 200:
-            name_save = join(folder_save, pmid + '.pdf')
-            with open(name_save, 'wb') as f:
+        status_code = resp.status_code
+        if status_code == 200:
+            with open(path_save, 'wb') as f:
                 f.write(resp.content)
-        return resp.status_code, getsize(name_save)
+
+        if isfile(path_save):   return status_code, getsize(path_save)
+        else:                   return status_code, 0
 
 
-if __name__ == "__main__":...
+if __name__ == "__main__": ...

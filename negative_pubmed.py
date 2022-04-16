@@ -7,6 +7,9 @@ from colorama import Fore
 from lib.one_paper import find_abstract, find_title
 from lib.utils import pmid2Url, send_request
 
+from lib.pmc import PMC_tree
+from usingDOI_download_Scihub import get_list_pmid, get_crawled_fulltext_pmid, get_pmid_sent_request
+from lib.config import PMID_NEGA
 
 def get_list_pmid_in_tree(pmc_extract_tree) -> list:
     """
@@ -71,8 +74,7 @@ def pmid2info(pmid:str) -> tuple[str, str]:
     abstract = find_abstract(body)
     return title, abstract
 
-
-if __name__ == "__main__":
+def download_title_abstract_negative():
     pmc_extract_tree = "data/PMC_extract_tree.txt"
     list_pmid_negative = get_list_pmid_in_tree(pmc_extract_tree)    # list tất cả các pmid lấy từ pmc
     keyword = Keyword()
@@ -92,3 +94,47 @@ if __name__ == "__main__":
                 # f.write(title + '\n')
                 # f.write(abstract + '\n')
                 # f.write('\n')
+
+def download_full_text_negative():
+    r"""
+    lấy danh sách pmid negative
+    tìm oa_pdf trong file pmid_extract_tree
+    từ oa_pdf download file trong pmc fth
+    """
+    pmid_negative = get_list_pmid(PMID_NEGA)
+    folder_save_pdf = "data/fulltext/negative_pdfs"
+
+    max_size = round(40* 2**30) 
+    pmid_crawls, size, total_pdf = get_crawled_fulltext_pmid(folder_save_pdf) # pmid đã craws và size 
+    pmid_crawls = set(pmid_crawls)
+    print(Fore.RED, "{:.2f} Gigabytes / {} pdfs".format((size/2**30), total_pdf), Fore.RESET)
+
+
+    pmc = PMC_tree()
+    # duyệt qua từng pmid để download
+    for pmid in pmid_negative:
+        if pmid in pmid_crawls:
+            # bỏ qua pmid đã send request, tìm chúng trong danh sách doi
+            # bỏ qua pmid đã crawl xong pdf
+            continue
+        
+        oa_pdf = pmc.find_oa_PDF_from_pmid(pmid)
+        if oa_pdf is not None:
+            path_pdf = os.path.join(folder_save_pdf, pmid + '.pdf')
+            stt, pdf_size = pmc.download_PMC(oa_pdf, path_pdf)
+            
+            if pdf_size != 0:
+                size += pdf_size
+                total_pdf += 1
+                print (Fore.RED, stt,Fore.RESET, pmid)
+
+                if size >= max_size:
+                    # dừng crawl vì full dung lượng ổ cứng
+                    print("stop crawling because of SSD is full", size/2**30)
+                    break
+                
+
+if __name__ == "__main__": 
+    download_full_text_negative()
+
+
