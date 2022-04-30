@@ -82,7 +82,7 @@ class SciHub(object):
 
     @staticmethod
     def get_available_scihub_urls():
-        # @author watson21
+        # @author watson21 imnova1212@gmail.com
         # Finds available scihub urls via https://sci-hub.now.sh/
         resp = send_request('https://sci-hub.now.sh/')
         scihub_tag = resp.find_all('a', href=True)
